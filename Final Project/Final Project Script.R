@@ -31,78 +31,40 @@ Data <- read_excel("data/Data.xlsx")
 source("code/DLog_func.R")
 Data <- DLog_func(Data)
 
-
-# Plot of Returns for different RiskRatings
-Data %>% 
-  group_by(FundName) %>% 
-  filter(RiskRating == "H") %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none") +
-  facet_wrap(~FundName, scales = "free")
-
-ggsave("bin/Ret_H.png")
-dev.off()
-
-Data %>% 
-  group_by(FundName) %>% 
-  filter(RiskRating == "HM") %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none") +
-  facet_wrap(~FundName, scales = "free")
-
-ggsave("bin/Ret_HM.png")
-dev.off()
-
-Data %>% 
-  group_by(FundName) %>% 
-  filter(RiskRating == "M") %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none") +
-  facet_wrap(~FundName, scales = "free")
-
-ggsave("bin/Ret_M.png")
-dev.off()
-
 # Calculating cumulative returns
 source("code/Cumret_func.R")
 Data <- Cumret_func(Data)
 
+# Plot of Returns for different RiskRatings
+source("code/H_ret_line.R")
+H_ret_line(Data)
+ggsave("bin/Ret_H.png", width = 7.5, height = 4.4)
+dev.off()
+
+source("code/M_ret_line.R")
+M_ret_line(Data)
+ggsave("bin/Ret_H.png", width = 7.5, height = 4.4)
+dev.off()
+
+
 # plotting cumulative returns for different RiskRatings
-Data %>%
-  group_by(FundName) %>% 
-  filter(RiskRating == "H") %>% 
-  ggplot() + geom_line(aes(x = Date, y = Cumulative_Return, colour = FundName)) +theme(legend.position = "none")
-
-ggsave("bin/Cumret_H.png")
+source("code/H_cumret_line.R")
+H_cumret_line(Data)
+ggsave("bin/Cumret_H.png", width = 8, height = 4.6)
 dev.off()
 
-Data %>%
-  group_by(FundName) %>% 
-  filter(RiskRating == "HM") %>% 
-  ggplot() + geom_line(aes(x = Date, y = Cumulative_Return, colour = FundName)) +theme(legend.position = "none")
-
-ggsave("bin/Cumret_HM.png")
+source("code/M_cumret_line.R")
+M_cumret_line(Data)
+ggsave("bin/Cumret_M.png", width = 8, height = 4.6)
 dev.off()
 
-Data %>%
-  group_by(FundName) %>% 
-  filter(RiskRating == "M") %>% 
-  ggplot() + geom_line(aes(x = Date, y = Cumulative_Return, colour = FundName)) +theme(legend.position = "none")
 
-ggsave("bin/Cumret_M.png")
-dev.off()
 
 #==================================================================================================
-# FILTERED HISTORICAL ANALYSIS:
+# FILTERED HISTORICAL SIMULATION ANALYSIS:
 #--------------------------------------------------------------------------------------------------
 
 # STANLIB Global Balanced Feeder Fund B (H1):
-
-# Plot of Returns for different RiskRatings
-Data %>% 
-  group_by(FundName) %>% 
-  filter(FundName == "STANLIB Global Balanced Feeder Fund B") %>% 
-  filter(Date >= as.Date("2018-09-14"), Date <= as.Date("2018-10-15")) %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-
-
 
 # Fit appropriate GARCH model
 source("code/H1_GARCH_func.R")
@@ -119,7 +81,7 @@ H1_sim_1W <- H1_sim_1W_func(H1_fit)
 # Histogram of 1 week simulations
 source("code/H1_sim_1W_histogram.R")
 H1_sim_1W_histogram(H1_sim_1W)
-ggsave("bin/H1_W_sim.png")
+ggsave("bin/H1_1W_sim.png", width = 5, height = 5)
 dev.off()
 
 # Simulation 1 Month ahead
@@ -129,879 +91,542 @@ H1_sim_1M <- H1_sim_1M_func(H1_fit)
 # Histogram of 1 month simulations
 source("code/H1_sim_1M_histogram.R")
 H1_sim_1M_histogram(H1_sim_1M)
-ggsave("bin/H1_M_sim.png")
+ggsave("bin/H1_1M_sim.png", width = 5, height = 5)
 dev.off()
 
+# Simulation 2 Month ahead
+source("code/H1_sim_2M_func.R")
+H1_sim_2M <- H1_sim_2M_func(H1_fit)
+
+# Histogram of 2 month simulations
+source("code/H1_sim_2M_histogram.R")
+H1_sim_2M_histogram(H1_sim_2M)
+ggsave("bin/H1_2M_sim.png", width = 5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
 # VaR calculations
 
-# Historical VaR (1 Week 2018-10-16 to 2018-10-22)
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+H1_VaR_1W_sim <- VaR_1W_sim_func(H1_sim_1W)
+
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+H1_VaR_1M_sim <- VaR_1M_sim_func(H1_sim_1M)
+
+# VaR for simulations (2 Month from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+H1_VaR_2M_sim <- VaR_2M_sim_func(H1_sim_2M)
+
+# Historical VaR (1 Week 2018-09-14to 2018-09-20)
 source("code/H1_VaR_1W_hist_func.R")
-H1_VaR_1W_hist_func(Data)
+H1_VaR_1W_hist <- H1_VaR_1W_hist_func(Data)
 
-# Historical VaR (1 month 2018-10-16 to 2018-11-15 )
+# Historical VaR (1 Month 2018-09-14 to 2018-10-15 )
 source("code/H1_VaR_1M_hist_func.R")
-H1_VaR_1M_hist_func(Data)
+H1_VaR_1M_hist <- H1_VaR_1M_hist_func(Data)
 
-# VaR for simulations (1 Week from 2018-10-16 to 2018-10-22)
-source("code/H1_VaR_1W_sim_func.R")
-H1_VaR_1W_sim_func(H1_sim_1W)
+# Historical VaR (2 Month 2018-09-14to 2018-11-15 )
+source("code/H1_VaR_2M_hist_func.R")
+H1_VaR_2M_hist <- H1_VaR_2M_hist_func(Data)
 
-# VaR for simulations (1 Month from 2018-10-16 to 2018-11-15)
-source("code/H1_VaR_1M_sim_func.R")
-H1_VaR_1M_sim_func(H1_sim_1M)
-
-H1_VaR <- matrix(c(-0.01960891, -0.0179255, -0.008946389, -0.01246722),ncol=2,byrow=TRUE)
-colnames(H1_VaR) <- c("One-Week", "One-Month")
-rownames(H1_VaR) <- c("FHS","Historical")
-
-library(xtable)
-H1_VaR <- H1_VaR %>%  tbl_df()
-
-xtable(H1_VaR, caption = NULL, label = NULL, align = NULL, digits = NULL,
-       display = NULL, auto = FALSE)
-
-
-# Historical VaR (1 month prior 2018-10-15)
-b <- Data %>% 
-  group_by(FundName) %>% 
-  filter(FundName == "STANLIB Global Balanced Feeder Fund B") %>% 
-  filter(Date >= as.Date("2018-09-14")) %>% 
-  filter(Date <= as.Date("2018-10-15")) %>% 
-  select(Date, FundName, Return) %>%
-  ungroup() %>% 
-  tbl_xts %>% 
-  VaR(p = 0.95, method = "historical")
-
-b <- b %>% as.data.frame()
-
-# Actual VaR (1 week after 2018-10-15)
-V <- Data %>% 
-  group_by(FundName) %>% 
-  filter(FundName == "STANLIB Global Balanced Feeder Fund B") %>% 
-  filter(Date >= as.Date("2018-10-16")) %>% 
-  filter(Date <= as.Date("2018-11-15")) %>% 
-  select(Date, FundName, Return) %>%
-  ungroup() %>% 
-  tbl_xts %>% 
-  VaR(p = 0.95, method = "historical")
-
-V <- V %>% as.data.frame()
-
-
-
-
-
-# computing VaR from simulations
-nu <- H1_fit@fit$coef["shape"] # extract (fitted) d.o.f. nu
-
-H1_sim <- fitted(mysim_H1) # extract simulated values
-H1_sim_sig <- sigma(mysim_H1) # extract simulated sigma
-H1_sim_eps <- mysim_H1@simulation$residSim # extract epsilon
-
-VaR.sim <- (H1_sim - H1_sim_eps) + H1_sim_sig * sqrt((nu-2)/nu) * qt(0.05, df = nu)
-
-
-
-# plot histogram of simulated returns
-H1_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for STANLIB Global Balanced Feeder Fund B", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
-dev.off()
+source("code/H1_VaR_table.R")
+H1_VaR_table()
 
 #==================================================================================================
-# Analytics Ci Moderate Fund of Funds:
 
-H2 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Analytics Ci Moderate Fund of Funds") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-H2 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
+# Analytics Ci Moderate Fund of Funds (H2):
 
 
-# reduce outliers
-Extreme_Pos_Return <- 1
-Extreme_Neg_Return <- -1  
-
-H2 <- H2 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-H2 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# make time series
-H2_ts <- H2 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-#--------------------------------------------------------------------------------------------------
-
-#   Fitting Appropriate GARCH model
-
-# investigating which ARIMA model to use
-load_pkg("parallel")
-cl = makePSOCKcluster(10)
-
-AC = autoarfima(as.numeric(H2_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-show(head(AC$rank.matrix))
-# AR(2) MA(0) with mean is suggested
-
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[3]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(2, 0), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-H2_fit = ugarchfit(spec = garch11, data = as.numeric(H2_ts), solver = "solnp")
-
-H2_fit
-
-
+# Fit appropriate GARCH model
+source("code/H2_GARCH_func.R")
+H2_fit <- H2_GARCH_func(Data)
 
 # calculating standardized residuals
-st_resids <- xts(H2_fit@fit$residuals/H2_fit@fit$sigma, order.by = index(H2_ts))
+source("code/H2_st_resids_func.R")
+H2_st_resids_func(Data)
 
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
+# Simulation 1 Week ahead
+source("code/H2_sim_1W_func.R")
+H2_sim_1W <- H2_sim_1W_func(H2_fit)
 
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_H2 <- ugarchsim(H2_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-H2_sim <- fitted(mysim_H2)
-# turn into data frame
-H2_sim <- as.data.frame(H2_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-H2_sim <- cbind(simulation, H2_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-H2_sim_tdy <- H2_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-H2_sim_tdy <- cbind(simpath, H2_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-H2_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Analytics Ci Moderate Fund of Funds", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
+# Histogram of 1 week simulations
+source("code/H2_sim_1W_histogram.R")
+H2_sim_1W_histogram(H2_sim_1W)
+ggsave("bin/H2_1W_sim.png", width = 5, height = 5)
 dev.off()
 
+# Simulation 1 Month ahead
+source("code/H2_sim_1M_func.R")
+H2_sim_1M <- H2_sim_1M_func(H2_fit)
+
+# Histogram of 1 month simulations
+source("code/H2_sim_1M_histogram.R")
+H2_sim_1M_histogram(H2_sim_1M)
+ggsave("bin/H2_1M_sim.png", width = 5, height = 5)
+dev.off()
+
+# Simulation 2 Month ahead
+source("code/H2_sim_2M_func.R")
+H2_sim_2M <- H2_sim_2M_func(H2_fit)
+
+# Histogram of 2 month simulations
+source("code/H2_sim_2M_histogram.R")
+H2_sim_2M_histogram(H2_sim_2M)
+ggsave("bin/H2_2M_sim.png", width = 5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
+
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+H2_VaR_1W_sim <- VaR_1W_sim_func(H2_sim_1W)
+
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+H2_VaR_1M_sim <- VaR_1M_sim_func(H2_sim_1M)
+
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+H2_VaR_2M_sim <- VaR_2M_sim_func(H2_sim_2M)
+
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/H2_VaR_1W_hist_func.R")
+H2_VaR_1W_hist <- H2_VaR_1W_hist_func(Data)
+
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/H2_VaR_1M_hist_func.R")
+H2_VaR_1M_hist <- H2_VaR_1M_hist_func(Data)
+
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/H2_VaR_2M_hist_func.R")
+H2_VaR_2M_hist <- H2_VaR_2M_hist_func(Data)
+
+source("code/H2_VaR_table.R")
+H2_VaR_table()
 #==================================================================================================
-# Momentum International Balanced Feeder Fund A:
 
-H3 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Momentum International Balanced Feeder Fund A") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-H3 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
+# Momentum International Balanced Feeder Fund A (H3):
 
 
-# reduce outliers
-Extreme_Pos_Return <- 3
-Extreme_Neg_Return <- -3  
-
-H3 <- H3 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-H3 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# make time series
-H3_ts <- H3 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-#--------------------------------------------------------------------------------------------------
-
-#   Fitting Appropriate GARCH model
-
-# investigating which ARIMA model to use
-load_pkg("parallel")
-cl = makePSOCKcluster(10)
-
-AC = autoarfima(as.numeric(H3_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-show(head(AC$rank.matrix))
-# AR(0) MA(2) with mean is suggested but we use AR(2) Ma(0) which is the second best option
-
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[1]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(2, 0), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-H3_fit = ugarchfit(spec = garch11, data = as.numeric(H3_ts), solver = "solnp")
-
-H3_fit
-
-
+# Fit appropriate GARCH model
+source("code/H3_GARCH_func.R")
+H3_fit <- H3_GARCH_func(Data)
 
 # calculating standardized residuals
-st_resids <- xts(H3_fit@fit$residuals/H3_fit@fit$sigma, order.by = index(H3_ts))
+source("code/H3_st_resids_func.R")
+H3_st_resids_func(Data)
 
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
+# Simulation 1 Week ahead
+source("code/H3_sim_1W_func.R")
+H3_sim_1W <- H3_sim_1W_func(H3_fit)
 
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_H3 <- ugarchsim(H3_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-H3_sim <- fitted(mysim_H3)
-# turn into data frame
-H3_sim <- as.data.frame(H3_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-H3_sim <- cbind(simulation, H3_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-H3_sim_tdy <- H3_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-H3_sim_tdy <- cbind(simpath, H3_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-H3_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Momentum International Balanced Feeder Fund A", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
+# Histogram of 1 week simulations
+source("code/H3_sim_1W_histogram.R")
+H3_sim_1W_histogram(H3_sim_1W)
+ggsave("bin/H3_1W_sim.png", width = 5, height = 5)
 dev.off()
 
+# Simulation 1 Month ahead
+source("code/H3_sim_1M_func.R")
+H3_sim_1M <- H3_sim_1M_func(H3_fit)
 
-#==================================================================================================
-# Oasis Crescent Balanced High Equity Fund of Funds D:
-
-H4 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Oasis Crescent Balanced High Equity Fund of Funds D") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-H4 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
+# Histogram of 1 month simulations
+source("code/H3_sim_1M_histogram.R")
+H3_sim_1M_histogram(H3_sim_1M)
+ggsave("bin/H3_1M_sim.png", width = 5, height = 5)
 dev.off()
 
+# Simulation 2 Month ahead
+source("code/H3_sim_2M_func.R")
+H3_sim_2M <- H3_sim_2M_func(H3_fit)
 
-# reduce outliers
-Extreme_Pos_Return <- 1.25
-Extreme_Neg_Return <- -1.25 
-
-H4 <- H4 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-H4 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
+# Histogram of 2 month simulations
+source("code/H3_sim_2M_histogram.R")
+H3_sim_2M_histogram(H3_sim_2M)
+ggsave("bin/H3_2M_sim.png", width = 5, height = 5)
 dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
 
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+H3_VaR_1W_sim <- VaR_1W_sim_func(H3_sim_1W)
 
-# make time series
-H4_ts <- H4 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+H3_VaR_1M_sim <- VaR_1M_sim_func(H3_sim_1M)
 
-#--------------------------------------------------------------------------------------------------
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+H3_VaR_2M_sim <- VaR_2M_sim_func(H3_sim_2M)
 
-#   Fitting Appropriate GARCH model
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/H3_VaR_1W_hist_func.R")
+H3_VaR_1W_hist <- H3_VaR_1W_hist_func(Data)
 
-# investigating which ARIMA model to use
-load_pkg("parallel")
-cl = makePSOCKcluster(10)
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/H3_VaR_1M_hist_func.R")
+H3_VaR_1M_hist <- H3_VaR_1M_hist_func(Data)
 
-AC = autoarfima(as.numeric(H4_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-show(head(AC$rank.matrix))
-# AR(0) MA(0) with mean is suggested but we use AR(1) Ma(0) which is the third best option
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/H3_VaR_2M_hist_func.R")
+H3_VaR_2M_hist <- H3_VaR_2M_hist_func(Data)
 
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[3]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(1, 0), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-H4_fit = ugarchfit(spec = garch11, data = as.numeric(H4_ts), solver = "solnp")
-
-H4_fit
-
-
-
-# calculating standardized residuals
-st_resids <- xts(H4_fit@fit$residuals/H4_fit@fit$sigma, order.by = index(H4_ts))
-
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
-
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_H4 <- ugarchsim(H4_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-H4_sim <- fitted(mysim_H4)
-# turn into data frame
-H4_sim <- as.data.frame(H4_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-H4_sim <- cbind(simulation, H4_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-H4_sim_tdy <- H4_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-H4_sim_tdy <- cbind(simpath, H4_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-H4_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Oasis Crescent Balanced High Equity Fund of Funds D", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
-dev.off()
+source("code/H3_VaR_table.R")
+H3_VaR_table()
 
 #==================================================================================================
 
-# Allan Gray Tax-Free Balanced Fund A:
+# Oasis Crescent Balanced High Equity Fund of Funds D (H4):
 
-M1 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Allan Gray Tax-Free Balanced Fund A") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-M1 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# reduce outliers
-Extreme_Pos_Return <- 1
-Extreme_Neg_Return <- -1 
-
-M1 <- M1 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-M1 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# make time series
-M1_ts <- M1 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-#--------------------------------------------------------------------------------------------------
-
-#   Fitting Appropriate GARCH model
-
-# investigating which ARIMA model to use
-load_pkg("parallel")
-cl = makePSOCKcluster(10)
-
-AC = autoarfima(as.numeric(M1_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-show(head(AC$rank.matrix))
-# AR(0) MA(1) with mean is suggested but we use AR(1) Ma(0) which is the second best option
-
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[3]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(1, 0), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-M1_fit = ugarchfit(spec = garch11, data = as.numeric(M1_ts), solver = "solnp")
-
-M1_fit
-
-
+# Fit appropriate GARCH model
+source("code/H4_GARCH_func.R")
+H4_fit <- H4_GARCH_func(Data)
 
 # calculating standardized residuals
-st_resids <- xts(M1_fit@fit$residuals/M1_fit@fit$sigma, order.by = index(M1_ts))
+source("code/H4_st_resids_func.R")
+H4_st_resids_func(Data)
 
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
+# Simulation 1 Week ahead
+source("code/H4_sim_1W_func.R")
+H4_sim_1W <- H4_sim_1W_func(H4_fit)
 
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_M1 <- ugarchsim(m1_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-M1_sim <- fitted(mysim_M1)
-# turn into data frame
-M1_sim <- as.data.frame(M1_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-M1_sim <- cbind(simulation, M1_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-M1_sim_tdy <- M1_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-M1_sim_tdy <- cbind(simpath, M1_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-M1_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Allan Gray Tax-Free Balanced Fund A", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
+# Histogram of 1 week simulations
+source("code/H4_sim_1W_histogram.R")
+H4_sim_1W_histogram(H4_sim_1W)
+ggsave("bin/H4_1W_sim.png", width = 5, height = 5)
 dev.off()
+
+# Simulation 1 Month ahead
+source("code/H4_sim_1M_func.R")
+H4_sim_1M <- H4_sim_1M_func(H4_fit)
+
+# Histogram of 1 month simulations
+source("code/H4_sim_1M_histogram.R")
+H4_sim_1M_histogram(H4_sim_1M)
+ggsave("bin/H4_1M_sim.png", width = 5, height = 5)
+dev.off()
+
+# Simulation 2 Month ahead
+source("code/H4_sim_2M_func.R")
+H4_sim_2M <- H4_sim_2M_func(H4_fit)
+
+# Histogram of 2 month simulations
+source("code/H4_sim_2M_histogram.R")
+H4_sim_2M_histogram(H4_sim_2M)
+ggsave("bin/H4_2M_sim.png", width = 5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
+
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+H4_VaR_1W_sim <- VaR_1W_sim_func(H4_sim_1W)
+
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+H4_VaR_1M_sim <- VaR_1M_sim_func(H4_sim_1M)
+
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+H4_VaR_2M_sim <- VaR_2M_sim_func(H4_sim_2M)
+
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/H4_VaR_1W_hist_func.R")
+H4_VaR_1W_hist <- H4_VaR_1W_hist_func(Data)
+
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/H4_VaR_1M_hist_func.R")
+H4_VaR_1M_hist <- H4_VaR_1M_hist_func(Data)
+
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/H4_VaR_2M_hist_func.R")
+H4_VaR_2M_hist <- H4_VaR_2M_hist_func(Data)
+
+source("code/H4_VaR_table.R")
+H4_VaR_table()
+
+#==================================================================================================
+
+# Allan Gray Tax-Free Balanced Fund A (M1):
+
+# Fit appropriate GARCH model
+source("code/M1_GARCH_func.R")
+M1_fit <- M1_GARCH_func(Data)
+
+# calculating standardized residuals
+source("code/M1_st_resids_func.R")
+M1_st_resids_func(Data)
+
+# Simulation 1 Week ahead
+source("code/M1_sim_1W_func.R")
+M1_sim_1W <- M1_sim_1W_func(M1_fit)
+
+# Histogram of 1 week simulations
+source("code/M1_sim_1W_histogram.R")
+M1_sim_1W_histogram(M1_sim_1W)
+ggsave("bin/M1_1W_sim.png", width = 5, height = 5)
+dev.off()
+
+# Simulation 1 Month ahead
+source("code/M1_sim_1M_func.R")
+M1_sim_1M <- M1_sim_1M_func(M1_fit)
+
+# Histogram of 1 month simulations
+source("code/M1_sim_1M_histogram.R")
+M1_sim_1M_histogram(M1_sim_1M)
+ggsave("bin/M1_1M_sim.png", width = 5, height = 5)
+dev.off()
+
+# Simulation 2 Month ahead
+source("code/M1_sim_2M_func.R")
+M1_sim_2M <- M1_sim_2M_func(M1_fit)
+
+# Histogram of 2 month simulations
+source("code/M1_sim_2M_histogram.R")
+M1_sim_2M_histogram(M1_sim_2M)
+ggsave("bin/M1_2M_sim.png", width = 5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
+
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+M1_VaR_1W_sim <- VaR_1W_sim_func(M1_sim_1W)
+
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+M1_VaR_1M_sim <- VaR_1M_sim_func(M1_sim_1M)
+
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+M1_VaR_2M_sim <- VaR_2M_sim_func(M1_sim_2M)
+
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/M1_VaR_1W_hist_func.R")
+M1_VaR_1W_hist <- M1_VaR_1W_hist_func(Data)
+
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/M1_VaR_1M_hist_func.R")
+M1_VaR_1M_hist <- M1_VaR_1M_hist_func(Data)
+
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/M1_VaR_2M_hist_func.R")
+M1_VaR_2M_hist <- M1_VaR_2M_hist_func(Data)
+
+source("code/M1_VaR_table.R")
+M1_VaR_table()
 
 #===================================================================================================
 
-# Coronation Balanced Plus Fund A:
+# Coronation Balanced Plus Fund A (M2):
 
-M2 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Coronation Balanced Plus Fund A") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-M2 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# reduce outliers
-Extreme_Pos_Return <- 1.25
-Extreme_Neg_Return <- -1.25
-
-M2 <- M2 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-M2 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# make time series
-M2_ts <- M2 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-#--------------------------------------------------------------------------------------------------
-
-#   Fitting Appropriate GARCH model
-
-# investigating which ARIMA model to use
-cl = makePSOCKcluster(10)
-
-AC = autoarfima(as.numeric(M2_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-
-show(head(AC$rank.matrix))
-# AR(0) MA(1) with mean is suggested but we use AR(1) Ma(0) which is the second best option
-
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[3]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(1, 0), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-M2_fit = ugarchfit(spec = garch11, data = as.numeric(M2_ts), solver = "solnp")
-
-M2_fit
-
-
+# Fit appropriate GARCH model
+source("code/M2_GARCH_func.R")
+M2_fit <- M2_GARCH_func(Data)
 
 # calculating standardized residuals
-st_resids <- xts(M2_fit@fit$residuals/M2_fit@fit$sigma, order.by = index(M2_ts))
+source("code/M2_st_resids_func.R")
+M2_st_resids_func(Data)
 
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
+# Simulation 1 Week ahead
+source("code/M2_sim_1W_func.R")
+M2_sim_1W <- M2_sim_1W_func(M2_fit)
 
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_M2 <- ugarchsim(M2_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-M2_sim <- fitted(mysim_M2)
-# turn into data frame
-M2_sim <- as.data.frame(M2_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-M2_sim <- cbind(simulation, M2_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-M2_sim_tdy <- M2_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-M2_sim_tdy <- cbind(simpath, M2_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-M2_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Coronation Balanced Plus Fund A", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
+# Histogram of 1 week simulations
+source("code/M2_sim_1W_histogram.R")
+M2_sim_1W_histogram(M2_sim_1W)
+ggsave("bin/M2_1W_sim.png", width = 5, height = 5)
 dev.off()
+
+# Simulation 1 Month ahead
+source("code/M2_sim_1M_func.R")
+M2_sim_1M <- M2_sim_1M_func(M2_fit)
+
+# Histogram of 1 month simulations
+source("code/M2_sim_1M_histogram.R")
+M2_sim_1M_histogram(M2_sim_1M)
+ggsave("bin/M2_1M_sim.png", width = 5, height =5)
+dev.off()
+
+# Simulation 2 Month ahead
+source("code/M2_sim_2M_func.R")
+M2_sim_2M <- M2_sim_2M_func(M2_fit)
+
+# Histogram of 2 month simulations
+source("code/M2_sim_2M_histogram.R")
+M2_sim_2M_histogram(M2_sim_2M)
+ggsave("bin/M2_2M_sim.png", width = 5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
+
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+M2_VaR_1W_sim <- VaR_1W_sim_func(M2_sim_1W)
+
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+M2_VaR_1M_sim <- VaR_1M_sim_func(M2_sim_1M)
+
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+M2_VaR_2M_sim <- VaR_2M_sim_func(M2_sim_2M)
+
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/M2_VaR_1W_hist_func.R")
+M2_VaR_1W_hist <- M2_VaR_1W_hist_func(Data)
+
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/M2_VaR_1M_hist_func.R")
+M2_VaR_1M_hist <- M2_VaR_1M_hist_func(Data)
+
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/M2_VaR_2M_hist_func.R")
+M2_VaR_2M_hist <- M2_VaR_2M_hist_func(Data)
+
+source("code/M2_VaR_table.R")
+M2_VaR_table()
 
 #==================================================================================================
 
-# Kagiso Islamic Balanced Fund A:
+# Kagiso Islamic Balanced Fund A (M3):
 
-M3 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Kagiso Islamic Balanced Fund A") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-M3 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# reduce outliers
-Extreme_Pos_Return <- 1
-Extreme_Neg_Return <- -1
-
-M3 <- M3 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-M3 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# make time series
-M3_ts <- M3 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-#--------------------------------------------------------------------------------------------------
-
-#   Fitting Appropriate GARCH model
-
-# investigating which ARIMA model to use
-load_pkg("parallel")
-cl = makePSOCKcluster(10)
-
-AC = autoarfima(as.numeric(M3_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-show(head(AC$rank.matrix))
-# AR(0) MA(1) with mean is suggested but we use AR(1) Ma(0) which is the second best option
-
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[1]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(1, 0), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-M3_fit = ugarchfit(spec = garch11, data = as.numeric(M3_ts), solver = "solnp")
-
-M3_fit
-
-
+# Fit appropriate GARCH model
+source("code/M3_GARCH_func.R")
+M3_fit <- M3_GARCH_func(Data)
 
 # calculating standardized residuals
-st_resids <- xts(M3_fit@fit$residuals/M3_fit@fit$sigma, order.by = index(M3_ts))
+source("code/M3_st_resids_func.R")
+M3_st_resids_func(Data)
 
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
+# Simulation 1 Week ahead
+source("code/M3_sim_1W_func.R")
+M3_sim_1W <- M3_sim_1W_func(M3_fit)
 
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_M3 <- ugarchsim(M3_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-M3_sim <- fitted(mysim_M3)
-# turn into data frame
-M3_sim <- as.data.frame(M3_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-M3_sim <- cbind(simulation, M3_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-M3_sim_tdy <- M3_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-M3_sim_tdy <- cbind(simpath, M3_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-M3_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Kagiso Islamic Balanced Fund A", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
+# Histogram of 1 week simulations
+source("code/M3_sim_1W_histogram.R")
+M3_sim_1W_histogram(M3_sim_1W)
+ggsave("bin/M3_1W_sim.png", width = 5, height = 5)
 dev.off()
 
+# Simulation 1 Month ahead
+source("code/M3_sim_1M_func.R")
+M3_sim_1M <- M3_sim_1M_func(M3_fit)
+
+# Histogram of 1 month simulations
+source("code/M3_sim_1M_histogram.R")
+M3_sim_1M_histogram(M3_sim_1M)
+ggsave("bin/M3_1M_sim.png", width = 5, height = 5)
+dev.off()
+
+# Simulation 2 Month ahead
+source("code/M3_sim_2M_func.R")
+M3_sim_2M <- M3_sim_2M_func(M3_fit)
+
+# Histogram of 2 month simulations
+source("code/M3_sim_2M_histogram.R")
+M3_sim_2M_histogram(M3_sim_2M)
+ggsave("bin/M3_2M_sim.png", width =5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
+
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+M3_VaR_1W_sim <- VaR_1W_sim_func(M3_sim_1W)
+
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+M3_VaR_1M_sim <- VaR_1M_sim_func(M3_sim_1M)
+
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+M3_VaR_2M_sim <- VaR_2M_sim_func(M3_sim_2M)
+
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/M3_VaR_1W_hist_func.R")
+M3_VaR_1W_hist <- M3_VaR_1W_hist_func(Data)
+
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/M3_VaR_1M_hist_func.R")
+M3_VaR_1M_hist <- M3_VaR_1M_hist_func(Data)
+
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/M3_VaR_2M_hist_func.R")
+M3_VaR_2M_hist <- M3_VaR_2M_hist_func(Data)
+
+source("code/M3_VaR_table.R")
+M3_VaR_table()
 #==================================================================================================
 
 # Old Mutual Balanced Fund A:
 
-M4 <- Data %>%
-  group_by(FundName) %>% 
-  filter(FundName == "Old Mutual Balanced Fund A") %>% 
-  select(Date, FundName, Price, Return, Cumulative_Return)
-
-M4 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# reduce outliers
-Extreme_Pos_Return <- 1
-Extreme_Neg_Return <- -1
-
-M4 <- M4 %>% 
-  mutate(Return = ifelse(Return > Extreme_Pos_Return, 
-                         Extreme_Pos_Return, ifelse(Return < Extreme_Neg_Return, Extreme_Neg_Return, 
-                                                    Return)))
-M4 %>% 
-  ggplot() + geom_line(aes(x = Date, y = Return, colour = FundName)) + theme(legend.position = "none")
-dev.off()
-
-
-# make time series
-M4_ts <- M4 %>% 
-  select(Date, FundName, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-#--------------------------------------------------------------------------------------------------
-
-#   Fitting Appropriate GARCH model
-
-# investigating which ARIMA model to use
-load_pkg("parallel")
-cl = makePSOCKcluster(10)
-
-AC = autoarfima(as.numeric(M4_ts), ar.max = 2, ma.max = 2, 
-                criterion = "AIC", method = "partial", arfima = FALSE, include.mean = NULL, 
-                distribution.model = "norm", solver = "solnp", cluster = cl)
-show(head(AC$rank.matrix))
-# AR(2) MA(2) with mean is suggested 
-
-rm(cl)
-rm(AC)
-
-# fitting GARCH
-garch11 <- ugarchspec(variance.model = list(model = c("sGARCH", "gjrGARCH", "eGARCH", "fGARCH", "apARCH")[3]
-                                            , garchOrder = c(1, 1)), 
-                      mean.model = list(armaOrder = c(2, 2), include.mean = FALSE), 
-                      distribution.model = c("norm", "snorm", "std", "sstd", "ged", 
-                                             "sged", "nig", "ghyp", "jsu")[1])
-
-M4_fit = ugarchfit(spec = garch11, data = as.numeric(M4_ts), solver = "solnp")
-
-M4_fit
-
-
+# Fit appropriate GARCH model
+source("code/M4_GARCH_func.R")
+M4_fit <- M4_GARCH_func(Data)
 
 # calculating standardized residuals
-st_resids <- xts(M4_fit@fit$residuals/M4_fit@fit$sigma, order.by = index(M4_ts))
+source("code/M4_st_resids_func.R")
+M4_st_resids_func(Data)
 
-# convert to dataframe to use ggplot
-st_resids <- st_resids %>% xts_tbl()
-colnames(st_resids) <-  c("date", "st_resids")
+# Simulation 1 Week ahead
+source("code/M4_sim_1W_func.R")
+M4_sim_1W <- M4_sim_1W_func(M4_fit)
 
-
-# ACF's
-st_resids <- st_resids %>% tbl_xts()
-Acf(st_resids, main = "Standardized Residuals")
-Acf(st_resids^2, main = "Squared Standardized Residuals")
-
-# Simulation
-mysim_M4 <- ugarchsim(M4_fit, n.sim = 60, m.sim =1000, startMethod = "sample")
-
-# obtain fitted log returns
-M4_sim <- fitted(mysim_M4)
-# turn into data frame
-M4_sim <- as.data.frame(M4_sim) 
-# create new colomn to identify different simmulations (to needs to be same value as n.sim (simpath) above)
-simulation <- seq(from = 1, to = 60, by = 1)
-simulation <- as.data.frame(simulation)
-M4_sim <- cbind(simulation, M4_sim)
-
-# create new column to identify simulathion path periods (days) (also needs to be same value as n.sim)
-M4_sim_tdy <- M4_sim %>% gather(simulation, Return)
-simpath <- seq(from = 1, to = 60, by = 1)
-simpath <- as.data.frame(simpath)
-M4_sim_tdy <- cbind(simpath, M4_sim_tdy)
-
-data.frame(date = seq(as.Date("2016-01-01"),
-                      as.Date("2017-01-31"),"day"))
-
-# plot histogram of simulated returns
-M4_sim_tdy %>% group_by(simulation) %>% 
-  ggplot() + geom_histogram(aes(x = Return), position = "stack", binwidth = 0.05, alpha=0.9) + theme(legend.position = "none") + 
-  geom_vline(aes(xintercept=mean(Return)), color="blue", linetype="dashed", size=1) + 
-  
-  labs(title = "Simulations for Old Mutual Balanced Fund A", 
-       x = " Simulated Returns", y = "Count")
-
-ggsave("Figures/Simulations/Returns/bal_H.png")
+# Histogram of 1 week simulations
+source("code/M4_sim_1W_histogram.R")
+M4_sim_1W_histogram(M4_sim_1W)
+ggsave("bin/M4_1W_sim.png", width = 5, height = 5)
 dev.off()
 
-#==================================================================================================
+# Simulation 1 Month ahead
+source("code/M4_sim_1M_func.R")
+M4_sim_1M <- M4_sim_1M_func(M4_fit)
 
+# Histogram of 1 month simulations
+source("code/M4_sim_1M_histogram.R")
+M4_sim_1M_histogram(M4_sim_1M)
+ggsave("bin/M4_1M_sim.png", width = 5,height = 5)
+dev.off()
 
+# Simulation 2 Month ahead
+source("code/M4_sim_2M_func.R")
+M4_sim_2M <- M4_sim_2M_func(M4_fit)
 
-# Calculating Historical VaR for STANLIB Global Balanced Feeder Fund B
-H1 <- Data %>% 
-  filter(FundName == "STANLIB Global Balanced Feeder Fund B") %>% 
-  select(Date, Return) %>% 
-  tbl_xts()
-  
+# Histogram of 2 month simulations
+source("code/M4_sim_2M_histogram.R")
+M4_sim_2M_histogram(M4_sim_2M)
+ggsave("bin/M4_2M_sim.png", width = 5, height = 5)
+dev.off()
+#------------------------------------------------------------------------------------------------------------
+# VaR calculations
 
+# VaR for simulations (1 Week from 2018-09-14 to 2018-09-20)
+source("code/VaR_1W_sim_func.R")
+M4_VaR_1W_sim <- VaR_1W_sim_func(M4_sim_1W)
 
+# VaR for simulations (1 Month from 2018-09-14 to 2018-10-15)
+source("code/VaR_1M_sim_func.R")
+M4_VaR_1M_sim <- VaR_1M_sim_func(M4_sim_1M)
 
-quantile(H1,p=0.05)
+# VaR for simulations (2 Months from 2018-09-14 to 2018-11-15)
+source("code/VaR_2M_sim_func.R")
+M4_VaR_2M_sim <- VaR_2M_sim_func(M4_sim_2M)
 
-VaR(H1, p = 0.95, method = "modified")
+# Historical VaR (1 Week from 2018-09-14 to 2018-09-20)
+source("code/M4_VaR_1W_hist_func.R")
+M4_VaR_1W_hist <- M4_VaR_1W_hist_func(Data)
 
-# Calculating FHS VaR for STANLIB Global Balanced Feeder Fund B
+# Historical VaR (1 Month from 2018-09-14 to 2018-10-15)
+source("code/M4_VaR_1M_hist_func.R")
+M4_VaR_1M_hist <- M4_VaR_1M_hist_func(Data)
 
-H1_sim %>%
-  tbl_xts()
+# Historical VaR (2 Months from 2018-09-14 to 2018-11-15)
+source("code/M4_VaR_2M_hist_func.R")
+M4_VaR_2M_hist <- M4_VaR_2M_hist_func(Data)
 
-porteqw <- Return.portfolio(H1_sim, weight = NULL, geometric = FALSE)
-
-porteqw %>% xts_tbl() %>% 
-  mutate(Cumret = cumsum(portfolio.returns)) %>% 
-  ggplot() + geom_line(aes(x = date, y = Cumret)) + theme(legend.position = "none")
-
-
-
-H1_sim_ts <- H1_sim_tdy %>% 
-  select(simpath, Return) %>% 
-  ungroup() %>% 
-  tbl_xts()
-
-quantile(H1_ts,p=0.05)
-quantile()
+source("code/M4_VaR_table.R")
+M4_VaR_table()
 
