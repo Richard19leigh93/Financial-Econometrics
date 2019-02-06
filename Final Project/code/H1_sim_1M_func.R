@@ -1,13 +1,13 @@
 # Simulated process for 1 Month ahead
 
 H1_sim_1M_func <- function(x){
-  mysim_H1 <- ugarchsim(x, n.sim = 23, m.sim =100, startMethod = "sample")
+  mysim_H1 <- ugarchsim(x, n.sim = 22, m.sim =100, startMethod = "sample")
   
   H1_sim <- fitted(mysim_H1) %>% # extract simulated values
     as.data.frame()       #covert to data frame
   
 # create simulation path dates and bind them with simulations
-date_col <- dateconverter(as.Date("2018-10-16"), as.Date("2018-11-15"), 
+date_col <- dateconverter(as.Date("2018-09-14"), as.Date("2018-10-15"), 
                             "weekdays")
   
 date_col <- data.frame(Date = date_col)

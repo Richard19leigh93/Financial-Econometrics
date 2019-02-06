@@ -1,10 +1,10 @@
 # Calculating Standardized residuals for fitted STANLIB Global Balanced Feeder Fund B (H1) GARCH model
 H1_st_resids_func <-  function(x){
 
-H1 <- Data %>%
+H1 <- x %>%
   group_by(FundName) %>% 
   filter(FundName == "STANLIB Global Balanced Feeder Fund B") %>% 
-  filter(Date <= as.Date("2018-10-15")) %>% 
+  filter(Date <= as.Date("2018-09-13")) %>% 
   select(Date, FundName, Price, Return, Cumulative_Return)
 
 
